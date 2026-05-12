@@ -1,89 +1,66 @@
-#include <RTClib.h>
-
+// dando um "nome" para as portas
+// agora temos o botão também
 int vermelho = 10;
 int amarelo = 9;
 int verde = 8;
 int botao = 12;
-// nomeia as saídas de acordo com as cores
  
 void setup() {
-  Serial.begin(9600);
-  if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    while (1);
-  } // inicia serial e procura módulo rtc
-
-
-  if (rtc.lostPower()) {
-    Serial.println("RTC lost power, let's set the time!");
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  } //seta o tempo
-
-
+  // indicando para o arduíno quais portas vamos usar
   pinMode(vermelho, OUTPUT);
   pinMode(amarelo, OUTPUT);
   pinMode(verde, OUTPUT);
-  pinMode(botao, OUTPUT);
-
-
-  digitalWrite(verde,HIGH); //inicia verde ligado
-  digitalWrite(vermelho,LOW); //inicia vermelho desligado
-  digitalWrite(amarelo,LOW); //inicia amarelo desligado
+ 
+  pinMode(botao, INPUT);
+ 
+  // iniciamos com o verde ligado ...
+  digitalWrite(verde, HIGH);
+ 
+  // .. e o amarelo e vermelho desligados
+  digitalWrite(vermelho, LOW);
+  digitalWrite(amarelo, LOW);
 }
-// define o pin de saída pelas variáveis
-
-
+ 
 void loop() {
-  DateTime now = rtc.now(); //recebe o tempo atual
   if (digitalRead(botao) == HIGH) {
-    // esperamos um pouco antes de começar a lógica
-    delay(2000);
-    semaforo();
+      semaforo();
   }
-  delay(1000); //força o loop a atualizar a cada segundo
 }
-
-
+ 
 void semaforo() {
-
-
-digitalWrite(verde,LOW); //desliga verde
-digitalWrite(amarelo,high); //liga amarelo
-
-
-if(now.hour >= 11){
-  if(now.hour <= 13){
-    delay(5000);
+  int ajuste = 0;
+  bool dia = false;
+  if(dia == false){
+    dia = true;
+    ajuste = 0;
+  } else{
+    dia = false;
+    ajuste = 1000;
   }
-} else{
-  delay(2000); //espera 2 segundos
-}
 
 
-digitalWrite(amarelo,LOW); //desliga amarelo
-digitalWrite(vermelho,HIGH); //liga vermelho
-
-
-if(now.hour >= 11){
-  if(now.hour <= 13){
-    delay(8000);
-  }
-} else{
-  delay(5000); //espera 5 segundos
-}
-
-
-digitalWrite(vermelho,LOW); //desliga o vermelho
-digitalWrite(verde,HIGH); //liga verde
-
-
-if(now.hour >= 11){
-  if(now.hour <= 13){
-    delay(8000);
-  }
-} else{
-  delay(5000); //espera 5 segundos
-}
-
-
+  digitalWrite(vermelho, LOW);
+  digitalWrite(amarelo, HIGH);
+  digitalWrite(verde, LOW);
+ 
+  // esperamos 2s com o sinal no amarelo
+  delay(2000-ajuste);
+ 
+  // apagamos o amarelo e ligamos o vermelho
+  digitalWrite(amarelo, LOW);
+  digitalWrite(vermelho, HIGH);
+  // Não precisa desse pois o verde já estava apagado
+  // digitalWrite(verde, LOW);
+ 
+  // esperamos 5s com o sinal fechado
+  delay(5000-ajuste);  
+ 
+  // para finalizar, apagamos o vermelho e ligamos o verde
+  digitalWrite(verde, HIGH);
+  // não precisa desse pois o amarelo já estava apagado
+  // digitalWrite(amarelo, LOW);
+  digitalWrite(vermelho, LOW);
+ 
+  // esperamos 5s com o sinal aberto
+  delay(5000-ajuste);
 }
